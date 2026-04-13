@@ -105,9 +105,9 @@ function getChosenAcc(){return ACCESSORIES[accIdx].id;}
 function getDisplayName(){return customName||getChosenChar().name;}
 
 function initGame(){
-  player={x:W/2,y:H-65,w:32,h:45,vy:0,isJumping:false};
+  player={x:W/2,y:H-80,w:32,h:45,vy:0,isJumping:false};
   gargoyles=[];score=0;frames=0;
-  spd=2.5;spawnInt=90;lastSpawn=0;
+  spd=2.5;spawnInt=200;lastSpawn=0;
   state='playing';
 }
 
@@ -181,15 +181,19 @@ function getCharCardX(i){
 }
 
 function spawnGargoyle(){
-  const fromRight=Math.random()<0.4;
-  if(fromRight){
-    const y=Math.random()*(H-80)+20;
-    const type=Math.random()<0.3?'rosace':'gargouille';
-    gargoyles.push({x:W+20,y,w:type==='rosace'?28:30,h:type==='rosace'?28:36,vx:-(spd+Math.random()*1.5),vy:0,rot:0,type,fromRight:true});
+  const type=Math.random()<0.3?'rosace':'gargouille';
+  const rand=Math.random();
+  
+  if(rand<0.3){
+    const y=H-40;
+    if(rand<0.15){
+      gargoyles.push({x:W+20,y,w:type==='rosace'?28:30,h:type==='rosace'?28:36,vx:-(spd*0.4+0.3+Math.random()*0.3),vy:0,rot:0,type,fromRight:true});
+    } else {
+      gargoyles.push({x:-20,y,w:type==='rosace'?28:30,h:type==='rosace'?28:36,vx:spd*0.4+0.3+Math.random()*0.3,vy:0,rot:0,type,fromRight:true});
+    }
   } else {
     const x=Math.random()*(W-30)+15;
-    const type=Math.random()<0.3?'rosace':'gargouille';
-    gargoyles.push({x,y:-30,w:type==='rosace'?28:30,h:type==='rosace'?28:36,vy:spd+Math.random()*1.5,rot:0,type,fromRight:false});
+    gargoyles.push({x,y:-30,w:type==='rosace'?28:30,h:type==='rosace'?28:36,vy:spd+0.5+Math.random()*0.8,vx:0,rot:0,type,fromRight:false});
   }
 }
 
@@ -360,7 +364,7 @@ function loop(){
     if(g.fromRight){g.x+=g.vx;} else {g.y+=g.vy;}
     g.rot+=0.04;
   });
-  gargoyles=gargoyles.filter(g=>g.fromRight?(g.x>-40):(g.y<H+40));
+  gargoyles=gargoyles.filter(g=>g.fromRight?(g.x>-40&&g.x<W+40):(g.y<H+40));
 
   for(const g of gargoyles){
     if(checkCollision(player,g)){state='dead';break;}
