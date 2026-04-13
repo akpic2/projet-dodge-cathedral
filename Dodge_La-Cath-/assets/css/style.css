@@ -1,0 +1,10 @@
+* { margin: 0; padding: 0; box-sizing: border-box; background-color: #191a2e; }
+#gw { background: #1a1a2e; border-radius: 12px; overflow: hidden; user-select: none; }
+#ub { display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; background: #12122a; }
+#canvas { display: block; margin: 0 auto; width: 50vw; height: calc(50vw * 0.875); image-rendering: smooth; -webkit-image-rendering: smooth; -moz-image-rendering: smooth; -o-image-rendering: smooth; }
+#game-wrap { background: #1a1a2e; border-radius: 12px; overflow: hidden; user-select: none; }
+#ui-bar { display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; background: #12122a; }
+#score-label { color: #b8a9e8; font-size: 13px; }
+#score-val { color: #fff; font-size: 20px; font-weight: 500; }
+#best-label { color: #b8a9e8; font-size: 13px; text-align: right; }
+#best-val { color: #e8c97a; font-size: 20px; font-weight: 500; text-align: right; }
