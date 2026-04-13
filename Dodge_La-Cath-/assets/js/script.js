@@ -105,7 +105,7 @@ function getChosenAcc(){return ACCESSORIES[accIdx].id;}
 function getDisplayName(){return customName||getChosenChar().name;}
 
 function initGame(){
-  player={x:W/2,y:H-65,w:32,h:45};
+  player={x:W/2,y:H-65,w:32,h:45,vy:0,isJumping:false};
   gargoyles=[];score=0;frames=0;
   spd=2.5;spawnInt=90;lastSpawn=0;
   state='playing';
@@ -181,9 +181,16 @@ function getCharCardX(i){
 }
 
 function spawnGargoyle(){
-  const x=Math.random()*(W-30)+15;
-  const type=Math.random()<0.3?'rosace':'gargouille';
-  gargoyles.push({x,y:-30,w:type==='rosace'?28:30,h:type==='rosace'?28:36,vy:spd+Math.random()*1.5,rot:0,type});
+  const fromRight=Math.random()<0.4;
+  if(fromRight){
+    const y=Math.random()*(H-80)+20;
+    const type=Math.random()<0.3?'rosace':'gargouille';
+    gargoyles.push({x:W+20,y,w:type==='rosace'?28:30,h:type==='rosace'?28:36,vx:-(spd+Math.random()*1.5),vy:0,rot:0,type,fromRight:true});
+  } else {
+    const x=Math.random()*(W-30)+15;
+    const type=Math.random()<0.3?'rosace':'gargouille';
+    gargoyles.push({x,y:-30,w:type==='rosace'?28:30,h:type==='rosace'?28:36,vy:spd+Math.random()*1.5,rot:0,type,fromRight:false});
+  }
 }
 
 function drawCathedral(){
@@ -296,6 +303,24 @@ function collides(a,b){
   return a.x-a.w/2+m<b.x+b.w/2-m&&a.x+a.w/2-m>b.x-b.w/2+m&&a.y<b.y+b.h/2-m&&a.y+a.h>b.y-b.h/2+m;
 }
 
+function checkCollision(player,g){
+  const m=6;
+  const px=player.x,py=player.y,pw=player.w,ph=player.h;
+  const gx=g.x,gy=g.y,gw=g.w,gh=g.h;
+  
+  if(px-pw/2+m>=gx+gw/2-m||px+pw/2-m<=gx-gw/2+m||py>=gy+gh/2-m||py+ph<=gy-gh/2+m) return false;
+  
+  if(g.fromRight){
+    const hitFromTop=py+ph>gy-gh/2-5&&py+ph<gy+5&&py<gy;
+    if(hitFromTop) return false;
+    return true;
+  } else {
+    const hitFromTop=py+ph>gy-gh/2-5&&py+ph<gy+5&&py<gy;
+    if(hitFromTop) return false;
+    return true;
+  }
+}
+
 function loop(){
   ctx.clearRect(0,0,W,H);
   if(state==='select'){drawSelectScreen();requestAnimationFrame(loop);return;}
@@ -324,13 +349,21 @@ function loop(){
 
   if(keys['ArrowLeft']) player.x-=ch.speed;
   if(keys['ArrowRight']) player.x+=ch.speed;
+  if(keys['ArrowUp']&&!player.isJumping){player.vy=-12;player.isJumping=true;}
   player.x=Math.max(player.w/2,Math.min(W-player.w/2,player.x));
 
-  gargoyles.forEach(g=>{g.y+=g.vy;g.rot+=0.04;});
-  gargoyles=gargoyles.filter(g=>g.y<H+40);
+  player.vy+=0.6;
+  player.y+=player.vy;
+  if(player.y+player.h>=H-15){player.y=H-15-player.h;player.vy=0;player.isJumping=false;}
+
+  gargoyles.forEach(g=>{
+    if(g.fromRight){g.x+=g.vx;} else {g.y+=g.vy;}
+    g.rot+=0.04;
+  });
+  gargoyles=gargoyles.filter(g=>g.fromRight?(g.x>-40):(g.y<H+40));
 
   for(const g of gargoyles){
-    if(collides({x:player.x,y:player.y+player.h/2,w:player.w,h:player.h},g)){state='dead';break;}
+    if(checkCollision(player,g)){state='dead';break;}
   }
 
   gargoyles.forEach(drawGargoyle);
