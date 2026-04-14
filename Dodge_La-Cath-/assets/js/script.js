@@ -515,7 +515,19 @@ function loop(timestamp){
   gargoyles=gargoyles.filter(g=>g.fromRight?(g.x>-40&&g.x<W+40):(g.y<H+40));
 
   for(const g of gargoyles){
-    if(checkCollision(player,g)){state='dead';break;}
+    if(checkCollision(player,g)){
+    state = 'dead';
+
+    const port = window.location.port;
+
+    // Demande à l'utilisateur
+    const choix = confirm("Tu es mort 💀\n\nOK = Rejouer\nAnnuler = Rester sur l'écran");
+
+    if (choix) {
+      window.location.href = `http://127.0.0.1:${port}/projet-dodge-cathedral/Dodge_La-Cath-/dodge_cathedrale.html`;
+    }
+      break;
+    }
   }
 
   gargoyles.forEach(drawGargoyle);
